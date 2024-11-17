@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/jhrick/go-live/internal/server"
 )
 
 func main() {
@@ -27,9 +29,7 @@ func main() {
           panic(err)
         }
 
-        fmt.Println(string(data))
-
-        os.Exit(0)
+        server.NewServer(data) 
       } else {
         fmt.Println(file.Name())
       }
