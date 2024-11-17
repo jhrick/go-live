@@ -6,7 +6,15 @@ import (
 )
 
 func main() {
-  fileContent := reader.Read()
+  server := server.NewServer(reader.Read())
+  go server.Start()
+  
+  change := make(chan bool, 1)
 
-  server.NewServer(fileContent)
+  for {
+    go reader.WatchChanges(server.LastReload, change)
+
+    <-change
+    server.Content = reader.Read()
+  }
 }

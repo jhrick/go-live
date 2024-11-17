@@ -3,7 +3,11 @@ package reader
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"time"
 )
+
+var currFile string
 
 func Read() []byte {
   dir, _ := os.Getwd()
@@ -22,12 +26,14 @@ func Read() []byte {
 
     if !stat.IsDir() {
       if file.Name() == "index.html" {
+        currFile = filepath.Join(dir, file.Name())
+
         data, err := os.ReadFile(file.Name())
         if err != nil {
           panic(err)
         }
 
-       return data 
+        return data 
       } else {
         fmt.Println(file.Name())
       }
@@ -35,4 +41,19 @@ func Read() []byte {
   }
 
   return nil
+}
+
+func WatchChanges(lastReload time.Time, change chan bool) {
+  for {
+    info, err := os.Stat(currFile)
+    if err != nil {
+      panic(err)
+    }
+
+    if info.ModTime().Sub(lastReload) > 0 {
+      change <- true
+    }
+
+    time.Sleep(500 * time.Millisecond)
+  }
 }
